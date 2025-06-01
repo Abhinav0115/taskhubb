@@ -3,7 +3,6 @@
 import { useEffect, useState } from "react";
 import { useTheme } from "next-themes";
 import { Moon, Sun } from "lucide-react";
-import { Button } from "@mui/material";
 import Image from "next/image";
 
 const Navbar = () => {
@@ -56,7 +55,6 @@ const Navbar = () => {
                     aria-label="Toggle theme"
                     aria-pressed={theme === "dark"}
                     aria-details="Toggle between light and dark themes"
-                    aria-description="Switches the application theme between light and dark modes."
                 >
                     {theme === "dark" ? <Sun /> : <Moon />}
                 </button>

@@ -4,7 +4,6 @@ import { useEffect, useState } from "react";
 import { Task } from "@/types/task";
 import TaskItem from "./TaskItem";
 import Image from "next/image";
-
 import { useTheme } from "next-themes";
 
 export default function TaskList({
