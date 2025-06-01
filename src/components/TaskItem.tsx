@@ -34,6 +34,15 @@ const TaskItem = React.memo(function TaskItem({
     const [commentToDelete, setCommentToDelete] = useState<number | null>(null);
     const { theme } = useTheme();
     const [mounted, setMounted] = useState(false);
+    const [now, setNow] = useState(new Date());
+
+    useEffect(() => {
+        const interval = setInterval(() => {
+            setNow(new Date());
+        }, 60 * 1000); // Update every 60 seconds
+
+        return () => clearInterval(interval);
+    }, []);
 
     const getPriorityColor = (priority: string) => {
         switch (priority) {
@@ -67,7 +76,6 @@ const TaskItem = React.memo(function TaskItem({
         if (!task.dueDate) return "";
 
         const dueDate = new Date(task.dueDate);
-        const now = new Date();
         const timeDiff = dueDate.getTime() - now.getTime();
 
         const TWO_DAY = 2 * 24 * 60 * 60 * 1000;
@@ -78,7 +86,7 @@ const TaskItem = React.memo(function TaskItem({
         return "text-green-600";
     };
 
-    const isOverdue = task.dueDate && new Date(task.dueDate) < new Date();
+    const isOverdue = task.dueDate && new Date(task.dueDate) < now;
 
     const capitalizeFirstLetter = (str: string) => {
         return str.charAt(0).toUpperCase() + str.slice(1);
