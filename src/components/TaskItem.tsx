@@ -32,7 +32,7 @@ const TaskItem = React.memo(function TaskItem({
     const [showComments, setShowComments] = useState(true);
     const [confirmOpen, setConfirmOpen] = useState(false);
     const [commentToDelete, setCommentToDelete] = useState<number | null>(null);
-    const { theme, setTheme } = useTheme();
+    const { theme } = useTheme();
     const [mounted, setMounted] = useState(false);
 
     const getPriorityColor = (priority: string) => {
@@ -341,7 +341,6 @@ const TaskItem = React.memo(function TaskItem({
                                                         className="text-xs cursor-pointer text-red-500 hover:underline"
                                                         aria-label="Delete comment"
                                                         aria-details={`Delete comment with text "${comment.text}"`}
-                                                        aria-description={`Click to delete the comment with text "${comment.text}".`}
                                                         onClick={() =>
                                                             setCommentToDelete(
                                                                 commentIdx
@@ -382,12 +381,12 @@ const TaskItem = React.memo(function TaskItem({
                         }}
                     >
                         <DialogTitle className="">
-                            Are you sure you want to delete the task "
+                            Are you sure you want to delete the task &quot;
                             <span className="font-semibold">
                                 {task.title.slice(0, 50)}
                                 {task.title.length > 50 ? "..." : ""}
                             </span>
-                            "?
+                            &quot;?
                         </DialogTitle>
                         <DialogActions>
                             <Button
@@ -443,7 +442,6 @@ const TaskItem = React.memo(function TaskItem({
                                 onClick={() => setCommentToDelete(null)}
                                 aria-label="Cancel delete comment"
                                 aria-details={`Cancel deletion of comment with index ${commentToDelete} for task "${task.title}"`}
-                                aria-description={`Click to cancel deletion of the comment with index ${commentToDelete} for the task titled "${task.title}".`}
                             >
                                 Cancel
                             </Button>
@@ -461,7 +459,6 @@ const TaskItem = React.memo(function TaskItem({
                                 variant="contained"
                                 aria-label="Confirm delete comment"
                                 aria-details={`Confirm deletion of comment with index ${commentToDelete} for task "${task.title}"`}
-                                aria-description={`Click to confirm deletion of the comment with index ${commentToDelete} for the task titled "${task.title}".`}
                             >
                                 Delete
                             </Button>

@@ -16,7 +16,6 @@ import { DateTimePicker } from "@mui/x-date-pickers";
 import { AdapterDayjs } from "@mui/x-date-pickers/AdapterDayjs";
 import { LocalizationProvider } from "@mui/x-date-pickers/LocalizationProvider";
 import dayjs, { Dayjs } from "dayjs";
-import { useTheme as useMuiTheme } from "@mui/material/styles";
 import { useTheme as useNextTheme } from "next-themes";
 
 const modalStyle = (mode: "light" | "dark") => ({
@@ -57,7 +56,6 @@ export default function AddModal({
     const [priority, setPriority] = useState<"Low" | "Medium" | "High">("Low");
     const [dueDate, setDueDate] = useState<Dayjs | null>(null);
     const [tagInput, setTagInput] = useState("");
-    const muiTheme = useMuiTheme();
     const { resolvedTheme } = useNextTheme();
     const [mounted, setMounted] = useState(false);
     const [errors, setErrors] = useState<{

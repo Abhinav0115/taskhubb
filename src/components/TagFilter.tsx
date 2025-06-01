@@ -43,9 +43,6 @@ export default function TagFilter({ tags, selected, onSelect }: Props) {
                     aria-label={`Filter by tag: ${tag}`}
                     aria-pressed={selected.includes(tag)}
                     aria-details={`Filters tasks by the tag: ${tag}`}
-                    aria-description={`Click to ${
-                        selected.includes(tag) ? "remove" : "add"
-                    } the tag: ${tag} from the filter.`}
                 >
                     {tag}
                 </button>
