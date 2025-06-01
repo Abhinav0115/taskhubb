@@ -73,23 +73,6 @@ export default function EditModal({
         }
     }, [task]);
 
-    const handleTagKeyDown = (e: React.KeyboardEvent<HTMLInputElement>) => {
-        if (e.key === "Enter" && tagInput.trim()) {
-            e.preventDefault();
-            const newTag = tagInput.trim();
-            if (!tags.includes(newTag)) {
-                setTags((prev) => {
-                    const updated = [...prev, newTag];
-                    if (updated.length > 0 && errors.tags) {
-                        setErrors((prev) => ({ ...prev, tags: undefined }));
-                    }
-                    return updated;
-                });
-            }
-            setTagInput("");
-        }
-    };
-
     const handleRemoveTag = (tagToRemove: string) => {
         const updatedTags = tags.filter((tag) => tag !== tagToRemove);
         setTags(updatedTags);
