@@ -102,6 +102,17 @@ export default function EditModal({
         }
     };
 
+    const handleAddTag = () => {
+        const newTag = tagInput.trim();
+        if (newTag && !tags.includes(newTag)) {
+            setTags((prev) => [...prev, newTag]);
+            if (errors.tags) {
+                setErrors((prev) => ({ ...prev, tags: undefined }));
+            }
+        }
+        setTagInput("");
+    };
+
     const handleSave = () => {
         const newErrors: {
             title?: string;
@@ -187,6 +198,14 @@ export default function EditModal({
                     inputProps={{ maxLength: 40 }}
                     error={Boolean(errors.title)}
                     helperText={errors.title || `${title.length}/40 characters`}
+                    // slotProps={{
+                    //     formHelperText: {
+                    //         sx: {
+                    //             position: "absolute",
+                    //             right: "-0.4rem",
+                    //         },
+                    //     },
+                    // }}
                 />
 
                 <TextField
@@ -211,7 +230,7 @@ export default function EditModal({
                     ))}
                 </Box>
 
-                <TextField
+                {/* <TextField
                     fullWidth
                     label="Add Tags (press Enter)"
                     value={tagInput}
@@ -228,7 +247,46 @@ export default function EditModal({
                     margin="dense"
                     error={Boolean(errors.tags)}
                     helperText={errors.tags}
-                />
+                /> */}
+
+                <Box sx={{ display: "flex", gap: 1, mt: 1 }}>
+                    <TextField
+                        fullWidth
+                        label="Add Tags (press Enter)"
+                        inputProps={{ maxLength: 15 }}
+                        placeholder="max 15 characters/tag"
+                        value={tagInput}
+                        onChange={(e) => {
+                            setTagInput(e.target.value.toLowerCase());
+                            if (errors.tags) {
+                                setErrors((prev) => ({
+                                    ...prev,
+                                    tags: undefined,
+                                }));
+                            }
+                        }}
+                        onKeyDown={(e) => {
+                            if (e.key === "Enter") {
+                                e.preventDefault();
+                                handleAddTag();
+                            }
+                        }}
+                        margin="dense"
+                        error={Boolean(errors.tags)}
+                        helperText={errors.tags}
+                    />
+                    <Button
+                        variant="outlined"
+                        onClick={handleAddTag}
+                        disabled={!tagInput.trim()}
+                        sx={{
+                            height: "56px",
+                            mt: "8px", // aligns with TextField
+                        }}
+                    >
+                        Add
+                    </Button>
+                </Box>
 
                 {tagInput && (
                     <Box sx={{ mt: 1 }}>
