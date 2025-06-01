@@ -1,4 +1,4 @@
-# TaskHubb
+# TaskHubb - Your Task Management Hub
 
 TaskHubb is a user-friendly, modern task management app built with [Next.js](https://nextjs.org) (App Router), [Material UI](https://mui.com/), and [Tailwind CSS](https://tailwindcss.com/).  
 Effortlessly create, manage, and track your tasks with features like due dates, priorities, customizable tags, comments, and dark/light mode.  
@@ -8,7 +8,7 @@ All data is stored locally in your browser for privacy and speed.
 
 ## 🚀 Live Demo
 
-[![Live Project](https://img.shields.io/badge/Live-Demo-green?style=for-the-badge)](https://your-live-demo-link.com)
+[![Live Project](https://img.shields.io/badge/Live-Demo-green?style=for-the-badge)](https://taskhubb.vercel.app/)
 
 ---
 
@@ -59,12 +59,12 @@ _Add more screenshots as needed!_ -->
 
 ---
 
-## 🛠️ Getting Started
+## 🛠️ Getting Started in local
 
 ### 1. Clone the repository
 
 ```bash
-git clone https://github.com/<your-username>/taskhubb.git
+git clone https://github.com/Abhinav0115/taskhubb.git
 cd taskhubb
 ```
 
@@ -145,8 +145,8 @@ MIT
 
 ## 🔗 Links
 
--   [Live Project](#)
--   [Report Issues](https://github.com/your-username/taskhubb/issues)
+-   [Live Project](https://taskhubb.vercel.app)
+-   [Report Issues](https://github.com/Abhinav0115/taskhubb/issues)
 
 ---
 
