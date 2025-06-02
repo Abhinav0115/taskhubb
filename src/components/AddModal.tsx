@@ -104,6 +104,10 @@ export default function AddModal({
             newErrors.tags = "At least one tag is required";
         }
 
+        if (tags.some((tag) => tag.length > 15)) {
+            newErrors.tags = "Tags cannot exceed 15 characters each";
+        }
+
         if (dueDate && dueDate.isBefore(dayjs())) {
             newErrors.dueDate = "Due date cannot be in the past";
         }
@@ -164,6 +168,7 @@ export default function AddModal({
                 <TextField
                     fullWidth
                     label="Title"
+                    placeholder="Enter task title"
                     value={title}
                     onChange={(e) => {
                         const input = e.target.value;
@@ -183,6 +188,14 @@ export default function AddModal({
                     autoFocus
                     error={Boolean(errors.title)}
                     helperText={errors.title || `${title.length}/40 characters`}
+                    // slotProps={{
+                    //     formHelperText: {
+                    //         sx: {
+                    //             position: "absolute",
+                    //             right: "-0.4rem",
+                    //         },
+                    //     },
+                    // }}
                 />
 
                 <TextField
@@ -226,8 +239,20 @@ export default function AddModal({
                     <TextField
                         fullWidth
                         label="Add Tags (press Enter)"
+                        inputProps={{ maxLength: 15 }}
+                        placeholder="urgent, work (15 characters/tag)"
                         value={tagInput}
-                        onChange={(e) => setTagInput(e.target.value)}
+                        onChange={(e) => {
+                            const input = e.target.value;
+                            const lowercase = input.toLowerCase();
+                            setTagInput(lowercase);
+                            if (lowercase.trim()) {
+                                setErrors((prev) => ({
+                                    ...prev,
+                                    tags: undefined,
+                                }));
+                            }
+                        }}
                         onKeyDown={(e) => {
                             if (e.key === "Enter") {
                                 e.preventDefault();
@@ -241,7 +266,19 @@ export default function AddModal({
                         variant="outlined"
                         onClick={handleAddTag}
                         disabled={!tagInput.trim()}
-                        sx={{ height: "56px" }}
+                        sx={{
+                            height: "56px",
+                            "&:not(:disabled)": {
+                                backgroundColor:
+                                    resolvedTheme === "dark"
+                                        ? "#bb57de"
+                                        : "#9c28b1",
+                                color:
+                                    resolvedTheme === "dark"
+                                        ? "#ffffff"
+                                        : "#ffffff",
+                            },
+                        }}
                     >
                         Add
                     </Button>
@@ -345,6 +382,22 @@ export default function AddModal({
                         variant="contained"
                         color="secondary"
                         onClick={handleSave}
+                        sx={{
+                            backgroundColor:
+                                resolvedTheme === "dark"
+                                    ? "#bb57de"
+                                    : "#9c28b1",
+                            color:
+                                resolvedTheme === "dark"
+                                    ? "#ffffff"
+                                    : "#ffffff",
+                            "&:hover": {
+                                backgroundColor:
+                                    resolvedTheme === "dark"
+                                        ? "#a04ab8"
+                                        : "#7b1fa2",
+                            },
+                        }}
                     >
                         Save
                     </Button>

@@ -59,7 +59,7 @@ export default function TagFilter({
     return (
         <div className="relative mb-4">
             <div
-                className="flex flex-wrap gap-3 mb-4 items-center justify-start"
+                className="flex flex-wrap gap-2 mb-4 items-center justify-start"
                 role="group"
                 aria-label="Tag filter"
                 aria-description="Use the buttons below to filter tasks by tags. Click a tag to toggle its selection."
@@ -80,33 +80,40 @@ export default function TagFilter({
                         key={filterButton}
                         onClick={() => onStatusChange(filterButton)}
                         className={`px-2 py-1 border rounded capitalize transition-colors duration-200 hover:bg-purple-800 hover:text-white ${
-                            status === filterButton && "bg-purple-700 text-white"
+                            status === filterButton &&
+                            "bg-purple-700 text-white"
                         }`}
                     >
                         {filterButton}
                     </button>
                 ))}
                 <div className="">
-                    <button
-                        ref={buttonRef}
-                        onClick={() => setIsFilterOpen(!isFilterOpen)}
-                        className={`px-3 py-1 border rounded hover:bg-purple-800 hover:text-white transition-colors duration-200 cursor-pointer flex items-center gap-1
+                    {tags.length > 0 && (
+                        <button
+                            ref={buttonRef}
+                            onClick={() => {
+                                if (tags.length > 0) {
+                                    setIsFilterOpen((prev) => !prev);
+                                }
+                            }}
+                            className={`px-3 py-1 border rounded hover:bg-purple-800 hover:text-white transition-colors duration-200 cursor-pointer flex items-center gap-1
                             ${isFilterOpen && "bg-purple-700 text-white"}
                             `}
-                        aria-expanded={isFilterOpen}
-                        aria-label="Toggle tag filter"
-                    >
-                        Filter by Tags
-                        {isFilterOpen ? (
-                            <FaChevronUp size={12} />
-                        ) : (
-                            <FaChevronDown size={12} />
-                        )}
-                    </button>
-                    {isFilterOpen && (
+                            aria-expanded={isFilterOpen}
+                            aria-label="Toggle tag filter"
+                        >
+                            Filter by Tags
+                            {isFilterOpen ? (
+                                <FaChevronUp size={12} />
+                            ) : (
+                                <FaChevronDown size={12} />
+                            )}
+                        </button>
+                    )}
+                    {isFilterOpen && tags.length > 0 && (
                         <div
                             ref={dropdownRef}
-                            className={`absolute right-0 z-10 p-4 mt-2 border rounded shadow-md grid grid-cols-3 md:grid-cols-5 gap-2 w-max max-w-full ${
+                            className={`absolute right-0 z-10 p-3 mt-2 border rounded shadow-md grid grid-cols-3 md:grid-cols-5 gap-2 w-max max-w-full ${
                                 isDarkMode
                                     ? "bg-gray-700 text-white border-gray-700"
                                     : "bg-white text-gray-900 border-gray-300"
@@ -118,7 +125,7 @@ export default function TagFilter({
                                 <button
                                     key={tag}
                                     onClick={() => toggleTag(tag)}
-                                    className={`px-2 py-1 border text-sm rounded hover:bg-purple-800 hover:text-white transition-colors duration-200 ${
+                                    className={`px-2 py-1 border text-sm rounded hover:bg-purple-800 min-w-14 hover:text-white transition-colors duration-200 ${
                                         selected.includes(tag)
                                             ? "bg-purple-700 text-white"
                                             : ""
