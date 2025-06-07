@@ -221,6 +221,7 @@ export default function Home() {
                         aria-description="Shows how many tasks have been completed."
                     >
                         <span className="font-semibold">Progress: </span>
+
                         {completed} / {total} completed
                     </div>
                 </div>
