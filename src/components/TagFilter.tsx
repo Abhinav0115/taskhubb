@@ -62,7 +62,7 @@ export default function TagFilter({
                 className="flex flex-wrap gap-2 mb-4 items-center justify-start"
                 role="group"
                 aria-label="Tag filter"
-                aria-description="Use the buttons below to filter tasks by tags. Click a tag to toggle its selection."
+                aria-details="Select tags and status to filter tasks"
             >
                 {/* <button
                     onClick={() => onSelect([])}
