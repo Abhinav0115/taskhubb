@@ -7,7 +7,6 @@ import { Task } from "@/types/task";
 import { v4 as uuidv4 } from "uuid";
 import EditModal from "@/components/EditModal";
 import AddModal from "@/components/AddModal";
-import { Button } from "@mui/material";
 import { toast } from "react-toastify";
 import Navbar from "@/components/common/Navbar";
 
@@ -19,6 +18,9 @@ export default function Home() {
     const [sortBy, setSortBy] = useState<"createdAt" | "priority" | "dueDate">(
         "createdAt"
     );
+    const [statusFilter, setStatusFilter] = useState<
+        "all" | "completed" | "incomplete" | "overdue"
+    >("all");
     // const [tasks, setTasks] = useState<Task[]>([]);
 
     const [tasks, setTasks] = useState<Task[]>(() => {
@@ -52,7 +54,21 @@ export default function Home() {
             selectedTags.length > 0
                 ? selectedTags.some((tag) => t.tags.includes(tag))
                 : true;
-        return matchesSearch && matchesTags;
+
+        const now = new Date().toISOString();
+
+        const matchesStatus =
+            statusFilter === "all"
+                ? true
+                : statusFilter === "completed"
+                ? t.completed
+                : statusFilter === "incomplete"
+                ? !t.completed
+                : statusFilter === "overdue"
+                ? !t.completed && t.dueDate && t.dueDate < now
+                : true;
+
+        return matchesSearch && matchesTags && matchesStatus;
     });
 
     const sortedTasks = [...filteredTasks].sort((a, b) => {
@@ -160,7 +176,6 @@ export default function Home() {
                         className="bg-purple-900 h-11 text-white text-nowrap px-5 py-2 rounded hover:bg-purple-800 transition-colors cursor-pointer"
                         aria-label="Add new task"
                         aria-details="Opens a modal to add a new task"
-                        aria-description="Click to open the modal for adding a new task."
                         aria-pressed={addOpen}
                         aria-expanded={addOpen}
                         onClick={() => setAddOpen(true)}
@@ -170,15 +185,22 @@ export default function Home() {
                 </div>
                 <div className="mb-3 flex justify-between items-center text-sm text-gray-600">
                     <div>
-                        <label className="mr-2">Sort by:</label>
+                        <label className="mr-2 font-semibold">Sort by:</label>
                         <select
                             value={sortBy}
-                            onChange={(e) => setSortBy(e.target.value as any)}
-                            className=" bg-gray-200 rounded px-1.5 py-1 hover:bg-gray-300 transition-colors"
+                            onChange={(
+                                e: React.ChangeEvent<HTMLSelectElement>
+                            ) =>
+                                setSortBy(
+                                    e.target.value as
+                                        | "createdAt"
+                                        | "priority"
+                                        | "dueDate"
+                                )
+                            }
+                            className=" rounded border py-1.5 px-1 hover:bg-gray-200 transition-colors"
                             aria-label="Sort tasks"
                             aria-details="Select how to sort the tasks"
-                            aria-description="Choose a sorting option for the tasks."
-                            aria-pressed={sortBy !== "createdAt"}
                             aria-expanded={sortBy !== "createdAt"}
                         >
                             <option value="createdAt" className="bg-gray-200">
@@ -198,13 +220,24 @@ export default function Home() {
                         aria-details="Displays the number of completed tasks out of total tasks"
                         aria-description="Shows how many tasks have been completed."
                     >
-                        Progress: {completed} / {total} completed
+                        <span className="font-semibold">Progress: </span>
+                        {completed} / {total} completed
                     </div>
                 </div>
                 <TagFilter
                     tags={uniqueTags}
                     selected={selectedTags}
                     onSelect={setSelectedTags}
+                    status={statusFilter}
+                    onStatusChange={(status: string) =>
+                        setStatusFilter(
+                            status as
+                                | "all"
+                                | "completed"
+                                | "incomplete"
+                                | "overdue"
+                        )
+                    }
                 />
                 <TaskList
                     tasks={sortedTasks}

@@ -32,8 +32,17 @@ const TaskItem = React.memo(function TaskItem({
     const [showComments, setShowComments] = useState(true);
     const [confirmOpen, setConfirmOpen] = useState(false);
     const [commentToDelete, setCommentToDelete] = useState<number | null>(null);
-    const { theme, setTheme } = useTheme();
+    const { theme } = useTheme();
     const [mounted, setMounted] = useState(false);
+    const [now, setNow] = useState(new Date());
+
+    useEffect(() => {
+        const interval = setInterval(() => {
+            setNow(new Date());
+        }, 60 * 1000); // Update every 60 seconds
+
+        return () => clearInterval(interval);
+    }, []);
 
     const getPriorityColor = (priority: string) => {
         switch (priority) {
@@ -67,7 +76,6 @@ const TaskItem = React.memo(function TaskItem({
         if (!task.dueDate) return "";
 
         const dueDate = new Date(task.dueDate);
-        const now = new Date();
         const timeDiff = dueDate.getTime() - now.getTime();
 
         const TWO_DAY = 2 * 24 * 60 * 60 * 1000;
@@ -78,7 +86,7 @@ const TaskItem = React.memo(function TaskItem({
         return "text-green-600";
     };
 
-    const isOverdue = task.dueDate && new Date(task.dueDate) < new Date();
+    const isOverdue = task.dueDate && new Date(task.dueDate) < now;
 
     const capitalizeFirstLetter = (str: string) => {
         return str.charAt(0).toUpperCase() + str.slice(1);
@@ -341,7 +349,6 @@ const TaskItem = React.memo(function TaskItem({
                                                         className="text-xs cursor-pointer text-red-500 hover:underline"
                                                         aria-label="Delete comment"
                                                         aria-details={`Delete comment with text "${comment.text}"`}
-                                                        aria-description={`Click to delete the comment with text "${comment.text}".`}
                                                         onClick={() =>
                                                             setCommentToDelete(
                                                                 commentIdx
@@ -382,12 +389,12 @@ const TaskItem = React.memo(function TaskItem({
                         }}
                     >
                         <DialogTitle className="">
-                            Are you sure you want to delete the task "
+                            Are you sure you want to delete the task &quot;
                             <span className="font-semibold">
                                 {task.title.slice(0, 50)}
                                 {task.title.length > 50 ? "..." : ""}
                             </span>
-                            "?
+                            &quot;?
                         </DialogTitle>
                         <DialogActions>
                             <Button
@@ -443,7 +450,6 @@ const TaskItem = React.memo(function TaskItem({
                                 onClick={() => setCommentToDelete(null)}
                                 aria-label="Cancel delete comment"
                                 aria-details={`Cancel deletion of comment with index ${commentToDelete} for task "${task.title}"`}
-                                aria-description={`Click to cancel deletion of the comment with index ${commentToDelete} for the task titled "${task.title}".`}
                             >
                                 Cancel
                             </Button>
@@ -461,7 +467,6 @@ const TaskItem = React.memo(function TaskItem({
                                 variant="contained"
                                 aria-label="Confirm delete comment"
                                 aria-details={`Confirm deletion of comment with index ${commentToDelete} for task "${task.title}"`}
-                                aria-description={`Click to confirm deletion of the comment with index ${commentToDelete} for the task titled "${task.title}".`}
                             >
                                 Delete
                             </Button>
