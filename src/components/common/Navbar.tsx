@@ -4,14 +4,20 @@ import { useEffect, useState } from "react";
 import { useTheme } from "next-themes";
 import { Moon, Sun } from "lucide-react";
 import Image from "next/image";
+import { usePWAInstall } from "@/hooks/usePWAInstall";
 
 const Navbar = () => {
     const { theme, setTheme } = useTheme();
     const [mounted, setMounted] = useState(false);
+    const { isSupported, promptInstall } = usePWAInstall();
 
     useEffect(() => {
         setMounted(true);
     }, []);
+
+    const handleInstallClick = async () => {
+        await promptInstall();
+    };
 
     if (!mounted) return null;
     return (
@@ -46,18 +52,30 @@ const Navbar = () => {
                     <span className="text-yellow-300 ">Task</span> Hubb
                 </div>
 
-                {/* Theme toggle button */}
-                <button
-                    onClick={() =>
-                        setTheme(theme === "dark" ? "light" : "dark")
-                    }
-                    className="p-1 px-3 outline-1 outline-gray-200 text-gray-200 hover:outline-gray-300 rounded-md transition-colors duration-300 hover:bg-white/10 cursor-pointer"
-                    aria-label="Toggle theme"
-                    aria-pressed={theme === "dark"}
-                    aria-details="Toggle between light and dark themes"
-                >
-                    {theme === "dark" ? <Sun /> : <Moon />}
-                </button>
+                <div className="flex items-center gap-4">
+                    {/* PWA Install Button */}
+                    {isSupported && (
+                        <button
+                            onClick={handleInstallClick}
+                            className="p-1 px-3 outline-1 outline-gray-200 text-gray-200 hover:outline-gray-300 rounded-md transition-colors duration-300 hover:bg-white/10 cursor-pointer"
+                        >
+                            Install App
+                        </button>
+                    )}
+
+                    {/* Theme toggle button */}
+                    <button
+                        onClick={() =>
+                            setTheme(theme === "dark" ? "light" : "dark")
+                        }
+                        className="p-1 px-3 outline-1 outline-gray-200 text-gray-200 hover:outline-gray-300 rounded-md transition-colors duration-300 hover:bg-white/10 cursor-pointer"
+                        aria-label="Toggle theme"
+                        aria-pressed={theme === "dark"}
+                        aria-details="Toggle between light and dark themes"
+                    >
+                        {theme === "dark" ? <Sun /> : <Moon />}
+                    </button>
+                </div>
             </div>
         </nav>
     );

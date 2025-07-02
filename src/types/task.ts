@@ -2,6 +2,13 @@ export interface Comment {
     text: string;
     timestamp: string;
 }
+export interface SubTask {
+    id: string;
+    title: string;
+    createdAt: string;
+    dueDate?: string;
+    completed: boolean;
+}
 
 export interface Task {
     id: string;
@@ -13,4 +20,5 @@ export interface Task {
     createdAt: string;
     completed: boolean;
     comments: Comment[];
+    subtasks?: SubTask[];
 }

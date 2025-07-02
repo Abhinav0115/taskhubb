@@ -39,5 +39,6 @@ yarn-error.log*
 # typescript
 *.tsbuildinfo
 next-env.d.ts
-src/components/AddModal copy.tsx
-src/components/TaskForm.tsx
+/public/sw.js
+/public/workbox-*.js
+public/fallback-bokF7JhVctjtESKpfCqNr.js
