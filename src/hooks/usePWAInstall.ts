@@ -11,7 +11,7 @@ export function usePWAInstall() {
 
     useEffect(() => {
         const handler = (e: any) => {
-            e.preventDefault();
+            // e.preventDefault(); 
 
             // Check if the prompt has already been manually triggered
             if (!hasManuallyTriggered) {
