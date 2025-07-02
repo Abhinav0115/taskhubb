@@ -9,9 +9,8 @@ interface Props {
     onSelect: (tags: string[]) => void;
     status: string;
     onStatusChange: (status: string) => void;
+    availableStatusFilters?: string[];
 }
-
-const STATUS_FILTERS = ["all", "completed", "incomplete", "overdue"];
 
 export default function TagFilter({
     tags,
@@ -19,6 +18,7 @@ export default function TagFilter({
     onSelect,
     status,
     onStatusChange,
+    availableStatusFilters,
 }: Props) {
     const [isFilterOpen, setIsFilterOpen] = useState(false);
     const dropdownRef = useRef<HTMLDivElement>(null);
@@ -59,7 +59,7 @@ export default function TagFilter({
     return (
         <div className="relative mb-4">
             <div
-                className="flex flex-wrap gap-2 mb-4 items-center justify-start"
+                className="flex flex-wrap gap-2 mb-4 items-center justify-center md:justify-start"
                 role="group"
                 aria-label="Tag filter"
                 aria-details="Select tags and status to filter tasks"
@@ -75,7 +75,14 @@ export default function TagFilter({
                 >
                     All
                 </button> */}
-                {STATUS_FILTERS.map((filterButton) => (
+                {(
+                    availableStatusFilters ?? [
+                        "all",
+                        "completed",
+                        "incomplete",
+                        "overdue",
+                    ]
+                ).map((filterButton) => (
                     <button
                         key={filterButton}
                         onClick={() => onStatusChange(filterButton)}
@@ -113,11 +120,18 @@ export default function TagFilter({
                     {isFilterOpen && tags.length > 0 && (
                         <div
                             ref={dropdownRef}
-                            className={`absolute right-0 z-10 p-3 mt-2 border rounded shadow-md grid grid-cols-3 md:grid-cols-5 gap-2 w-max max-w-full ${
+                            className={`absolute right-0 z-10 p-3 mt-2 border rounded shadow-md grid gap-2 w-max max-w-full ${
                                 isDarkMode
                                     ? "bg-gray-700 text-white border-gray-700"
                                     : "bg-white text-gray-900 border-gray-300"
                             }`}
+                            style={{
+                                gridTemplateColumns: `repeat(${Math.min(
+                                    Math.ceil(tags.length / 4),
+                                    6
+                                )}, minmax(80px, 1fr))`,
+                                maxWidth: "90vw",
+                            }}
                             aria-label="Tag dropdown"
                             aria-description="Select tags from the grid below"
                         >
@@ -138,16 +152,16 @@ export default function TagFilter({
                         </div>
                     )}
                 </div>
+                {selected.length > 0 && (
+                    <button
+                        onClick={() => onSelect([])}
+                        className="flex items-center gap-1 px-3 py-1 text-sm border rounded text-red-600 border-red-300 hover:bg-red-100 transition-colors duration-200"
+                    >
+                        <FaTimesCircle />
+                        Clear
+                    </button>
+                )}
             </div>
-            {selected.length > 0 && (
-                <button
-                    onClick={() => onSelect([])}
-                    className="flex items-center gap-1 px-3 py-1 text-sm border rounded text-red-600 border-red-300 hover:bg-red-100 transition-colors duration-200"
-                >
-                    <FaTimesCircle />
-                    Clear
-                </button>
-            )}
         </div>
     );
 }

@@ -1,19 +1,34 @@
 "use client";
-import { useState, useEffect, useCallback } from "react";
+import { useState, useEffect } from "react";
 import TaskList from "@/components/TaskList";
 import SearchBar from "@/components/SearchBar";
 import TagFilter from "@/components/TagFilter";
-import { Task } from "@/types/task";
-import { v4 as uuidv4 } from "uuid";
-import EditModal from "@/components/EditModal";
-import AddModal from "@/components/AddModal";
-import { toast } from "react-toastify";
+import EditModal from "@/components/modal/EditModal";
+import AddModal from "@/components/modal/AddModal";
 import Navbar from "@/components/common/Navbar";
+import { useTasks } from "@/hooks/useTasks";
+import PWAInstallPrompt from "@/components/common/PWAInstallPrompt";
 
 export default function Home() {
+    const {
+        tasks,
+        // setTasks,
+        editingTask,
+        setEditingTask,
+        addTask,
+        toggleTask,
+        deleteTask,
+        editTask,
+        saveTask,
+        addComment,
+        // deleteComment,
+        addSubTask,
+        deleteSubTask,
+        toggleSubTask,
+    } = useTasks();
+
     const [search, setSearch] = useState("");
     const [selectedTags, setSelectedTags] = useState<string[]>([]);
-    const [editingTask, setEditingTask] = useState<Task | null>(null);
     const [addOpen, setAddOpen] = useState(false);
     const [sortBy, setSortBy] = useState<"createdAt" | "priority" | "dueDate">(
         "createdAt"
@@ -21,24 +36,11 @@ export default function Home() {
     const [statusFilter, setStatusFilter] = useState<
         "all" | "completed" | "incomplete" | "overdue"
     >("all");
-    // const [tasks, setTasks] = useState<Task[]>([]);
-
-    const [tasks, setTasks] = useState<Task[]>(() => {
-        if (typeof window !== "undefined") {
-            const stored = localStorage.getItem("tasks");
-            return stored ? JSON.parse(stored) : [];
-        }
-        return [];
-    });
 
     // useEffect(() => {
     //     const stored = localStorage.getItem("tasks");
     //     if (stored) setTasks(JSON.parse(stored));
     // }, []);
-
-    useEffect(() => {
-        localStorage.setItem("tasks", JSON.stringify(tasks));
-    }, [tasks]);
 
     useEffect(() => {
         if (search) setSelectedTags([]);
@@ -89,86 +91,26 @@ export default function Home() {
 
     const uniqueTags = Array.from(new Set(tasks.flatMap((t) => t.tags)));
 
-    const handleAdd = (task: Omit<Task, "id" | "createdAt">) => {
-        setTasks((prevTasks) => [
-            ...prevTasks,
-            { ...task, id: uuidv4(), createdAt: new Date().toISOString() },
-        ]);
-        toast.success("Task created!");
-    };
-    const handleToggle = useCallback((id: string) => {
-        setTasks((prevTasks) =>
-            prevTasks.map((t) =>
-                t.id === id ? { ...t, completed: !t.completed } : t
-            )
-        );
-    }, []);
-
-    const handleDelete = useCallback((id: string) => {
-        setTasks((prevTasks) => prevTasks.filter((t) => t.id !== id));
-        toast.info("Task deleted.");
-    }, []);
-
-    const handleEdit = useCallback(
-        (id: string) => {
-            const task = tasks.find((t) => t.id === id);
-            if (task) setEditingTask(task);
-        },
-        [tasks]
-    );
-    const handleComment = useCallback((id: string, text: string) => {
-        setTasks((prevTasks) =>
-            prevTasks.map((task) =>
-                task.id === id
-                    ? {
-                          ...task,
-                          comments: [
-                              ...task.comments,
-                              {
-                                  text,
-                                  timestamp: new Date().toISOString(),
-                              },
-                          ],
-                      }
-                    : task
-            )
-        );
-        toast.success("Comment added!");
-    }, []);
-
-    const handleCommentDelete = useCallback(
-        (taskId: string, commentIdx: number) => {
-            setTasks((prevTasks) =>
-                prevTasks.map((task) =>
-                    task.id === taskId
-                        ? {
-                              ...task,
-                              comments: task.comments.filter(
-                                  (_c, idx) => idx !== commentIdx
-                              ),
-                          }
-                        : task
-                )
-            );
-            toast.info("Comment deleted.");
-        },
-        []
-    );
-
-    const handleSave = (updated: Task) => {
-        setTasks((prevTasks) =>
-            prevTasks.map((t) => (t.id === updated.id ? updated : t))
-        );
-        setEditingTask(null);
-        toast.success("Task updated!");
-    };
-
     const completed = tasks.filter((t) => t.completed).length;
+    // const incomplete = tasks.filter((t) => !t.completed).length;
+
     const total = tasks.length;
+
+    const visibleStatusFilters = ["all", "completed", "incomplete", "overdue"];
+
+    function deleteComment(taskId: string, commentIdx: number): void {
+        const task = tasks.find((t) => t.id === taskId);
+        if (!task) return;
+        const updatedComments = task.comments.filter((_, idx) => idx !== commentIdx);
+        const updatedTask = { ...task, comments: updatedComments };
+        // Use setEditingTask or saveTask to update the task
+        saveTask(updatedTask);
+    }
 
     return (
         <>
             <Navbar />
+            <PWAInstallPrompt />
             <main className="max-w-2xl mx-auto p-4">
                 <div className="flex justify-between mb-4 gap-4">
                     <SearchBar search={search} onSearch={setSearch} />
@@ -221,7 +163,6 @@ export default function Home() {
                         aria-description="Shows how many tasks have been completed."
                     >
                         <span className="font-semibold">Progress: </span>
-
                         {completed} / {total} completed
                     </div>
                 </div>
@@ -239,20 +180,24 @@ export default function Home() {
                                 | "overdue"
                         )
                     }
+                    availableStatusFilters={visibleStatusFilters}
                 />
                 <TaskList
                     tasks={sortedTasks}
-                    onToggle={handleToggle}
-                    onDelete={handleDelete}
-                    onEdit={handleEdit}
-                    onComment={handleComment}
-                    onCommentDelete={handleCommentDelete}
+                    onToggle={toggleTask}
+                    onDelete={deleteTask}
+                    onEdit={editTask}
+                    onComment={addComment}
+                    onCommentDelete={deleteComment}
+                    onAddSubTask={addSubTask}
+                    onDeleteSubTask={deleteSubTask}
+                    onToggleSubTask={toggleSubTask}
                 />
                 {addOpen && (
                     <AddModal
                         open={addOpen}
                         onClose={() => setAddOpen(false)}
-                        onSave={handleAdd}
+                        onSave={addTask}
                         tagSuggestions={uniqueTags}
                     />
                 )}
@@ -260,7 +205,7 @@ export default function Home() {
                     <EditModal
                         open={true}
                         onClose={() => setEditingTask(null)}
-                        onSave={handleSave}
+                        onSave={saveTask}
                         task={editingTask}
                         tagSuggestions={uniqueTags}
                     />

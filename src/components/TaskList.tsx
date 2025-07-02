@@ -13,6 +13,9 @@ export default function TaskList({
     onEdit,
     onComment,
     onCommentDelete,
+    onAddSubTask,
+    onDeleteSubTask,
+    onToggleSubTask,
 }: {
     tasks: Task[];
     onToggle: (id: string) => void;
@@ -20,6 +23,9 @@ export default function TaskList({
     onEdit: (id: string) => void;
     onComment: (id: string, comment: string) => void;
     onCommentDelete: (taskId: string, commentIdx: number) => void;
+    onAddSubTask: (taskId: string, title: string, dueDate?: string | null) => void;
+    onDeleteSubTask: (taskId: string, subtaskId: string) => void;
+    onToggleSubTask: (taskId: string, subtaskId: string) => void;
 }) {
     const { theme } = useTheme();
     const [mounted, setMounted] = useState(false);
@@ -60,6 +66,9 @@ export default function TaskList({
                             onComment(id, comment);
                         }}
                         onCommentDelete={onCommentDelete}
+                        onAddSubTask={onAddSubTask}
+                        onDeleteSubTask={onDeleteSubTask}
+                        onToggleSubTask={onToggleSubTask}
                     />
                 ))
             )}
