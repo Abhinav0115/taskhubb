@@ -9,17 +9,14 @@ import { usePWAInstall } from "@/hooks/usePWAInstall";
 const Navbar = () => {
     const { theme, setTheme } = useTheme();
     const [mounted, setMounted] = useState(false);
-    const { isInstalled, promptInstall } = usePWAInstall();
+    const { isSupported, promptInstall } = usePWAInstall();
 
     useEffect(() => {
         setMounted(true);
     }, []);
 
     const handleInstallClick = async () => {
-        const success = await promptInstall();
-        // if (!success) {
-        //     alert("Install prompt not available yet.");
-        // }
+        await promptInstall();
     };
 
     if (!mounted) return null;
@@ -57,7 +54,7 @@ const Navbar = () => {
 
                 <div className="flex items-center gap-4">
                     {/* PWA Install Button */}
-                    {!isInstalled && (
+                    {isSupported && (
                         <button
                             onClick={handleInstallClick}
                             className="p-1 px-3 outline-1 outline-gray-200 text-gray-200 hover:outline-gray-300 rounded-md transition-colors duration-300 hover:bg-white/10 cursor-pointer"

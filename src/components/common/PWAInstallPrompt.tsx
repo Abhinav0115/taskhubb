@@ -19,12 +19,17 @@ export default function PWAInstallPrompt() {
         if (isSupported && deferredPrompt && !isInstalled) {
             setShowPrompt(true);
         }
-    }, [isSupported, deferredPrompt]);
+    }, [isSupported, deferredPrompt, isInstalled]);
 
     const handleInstallClick = async () => {
         const result = await promptInstall();
         setShowPrompt(false);
-        console.log(result.success ? "User accepted" : "User dismissed");
+        if (!result.success) {
+            toast.info("You can install later from the menu.");
+        } else {
+            toast.success("App installed successfully!");
+        }
+        // console.log(result.success ? "User accepted" : "User dismissed");
     };
 
     const handleBackdropClick = (e: React.MouseEvent<HTMLDivElement>) => {
