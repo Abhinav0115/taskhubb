@@ -1,4 +1,3 @@
-"use client";
 import {
     Modal,
     Box,
@@ -16,134 +15,121 @@ import { Task } from "@/types/task";
 import { DateTimePicker } from "@mui/x-date-pickers";
 import { AdapterDayjs } from "@mui/x-date-pickers/AdapterDayjs";
 import { LocalizationProvider } from "@mui/x-date-pickers/LocalizationProvider";
-import dayjs, { Dayjs } from "dayjs";
+import dayjs from "dayjs";
+import { useTheme as useNextTheme } from "next-themes";
 
-const modalStyle = {
+import { useTaskForm } from "@/hooks/useTaskForm";
+import { useTags } from "@/hooks/useTags";
+
+const modalStyle = (mode: "light" | "dark") => ({
     position: "fixed" as const,
     top: 0,
     right: 0,
     bottom: 0,
-    transform: "translateX(100%)",
-    transition: "transform 0.3s ease-in-out",
     width: "400px",
     maxWidth: "100%",
-    bgcolor: "background.paper",
+    bgcolor: mode === "dark" ? "#262525" : "#fff",
+    color: mode === "dark" ? "#f1f1f1" : "#000",
     boxShadow: 24,
     p: 2,
     borderRadius: 2,
     zIndex: 9999,
+    transform: "translateX(100%)",
+    transition: "transform 0.3s ease-in-out",
     maxHeight: "100vh",
     overflowY: "auto",
-};
+});
 
-type EditModalProps = {
+type AddModalProps = {
     open: boolean;
     onClose: () => void;
-    onSave: (updatedTask: Task) => void;
-    task: Task | null;
+    onSave: (newTask: Task) => void;
     tagSuggestions?: string[];
 };
 
-export default function EditModal({
+export default function AddModal({
     open,
     onClose,
     onSave,
-    task,
     tagSuggestions = [],
-}: EditModalProps) {
-    const [title, setTitle] = useState("");
-    const [description, setDescription] = useState("");
-    const [tags, setTags] = useState<string[]>([]);
-    const [priority, setPriority] = useState<"Low" | "Medium" | "High">("Low");
-    const [tagInput, setTagInput] = useState("");
-    const [dueDate, setDueDate] = useState<Dayjs | null>(null);
-    const [errors, setErrors] = useState<{
-        title?: string;
-        dueDate?: string;
-        tags?: string;
-    }>({});
+}: AddModalProps) {
+    const { resolvedTheme } = useNextTheme();
+    const [mounted, setMounted] = useState(false);
+
+    const {
+        title,
+        setTitle,
+        description,
+        setDescription,
+        tags,
+        setTags,
+        priority,
+        setPriority,
+        dueDate,
+        setDueDate,
+        errors,
+        validate,
+        resetFields,
+        setErrors,
+    } = useTaskForm();
+
+    const {
+        tagInput,
+        setTagInput,
+        error: tagError,
+        addTag,
+        removeTag,
+        onTagInputChange,
+        setError: setTagError,
+        resetTagInput,
+    } = useTags(tags, setTags);
+
+    // Sync tags between hooks
+    useEffect(() => {
+        setTags(tags);
+    }, [tags, setTags]);
 
     useEffect(() => {
-        if (task) {
-            setTitle(task.title);
-            setDescription(task.description || "");
-            setTags(task.tags || []);
-            setPriority(task.priority || "Medium");
-            setDueDate(task.dueDate ? dayjs(task.dueDate) : null);
-        }
-    }, [task]);
+        setMounted(true);
+    }, []);
 
-    const handleRemoveTag = (tagToRemove: string) => {
-        const updatedTags = tags.filter((tag) => tag !== tagToRemove);
-        setTags(updatedTags);
-
-        if (updatedTags.length === 0) {
-            setErrors((prev) => ({
-                ...prev,
-                tags: "At least one tag is required",
-            }));
-        }
-    };
+    if (!mounted) return null;
 
     const handleAddTag = () => {
-        const newTag = tagInput.trim();
-        if (newTag && !tags.includes(newTag)) {
-            setTags((prev) => [...prev, newTag]);
-            if (errors.tags) {
-                setErrors((prev) => ({ ...prev, tags: undefined }));
-            }
-        }
-        setTagInput("");
+        addTag();
+        if (errors.tags) setErrors((prev) => ({ ...prev, tags: undefined }));
+        if (tagError) setTagError(undefined);
+        resetTagInput();
     };
 
     const handleSave = () => {
-        const newErrors: {
-            title?: string;
-            dueDate?: string;
-            tags?: string;
-        } = {};
+        // Sync tags from useTags hook to useTaskForm before validate
+        setTags(tags);
 
-        if (!title.trim()) {
-            newErrors.title = "Title is required";
-        }
+        if (!validate()) return;
 
-        if (title.trim().length > 40) {
-            newErrors.title = "Title cannot exceed 40 characters";
-        }
+        onSave({
+            title: title.trim(),
+            description: description.trim(),
+            tags,
+            priority,
+            dueDate: dueDate ? dueDate.toISOString() : "",
+            id: "",
+            createdAt: "",
+            completed: false,
+            comments: [],
+        });
 
-        if (tags.length === 0) {
-            newErrors.tags = "At least one tag is required";
-        }
-
-        if (dueDate && dueDate.isBefore(dayjs())) {
-            newErrors.dueDate = "Due date cannot be in the past";
-        }
-
-        if (Object.keys(newErrors).length > 0) {
-            setErrors(newErrors);
-            return;
-        }
-
-        // If valid, clear errors
-        setErrors({});
-        if (task) {
-            onSave({
-                ...task,
-                title,
-                description,
-                tags,
-                priority,
-                dueDate: dueDate ? dueDate.toISOString() : "",
-            });
-        }
         onClose();
+        resetFields();
+        setTagInput("");
     };
 
     return (
         <Modal open={open} onClose={onClose}>
             <Box
                 sx={{
-                    ...modalStyle,
+                    ...modalStyle(resolvedTheme === "dark" ? "dark" : "light"),
                     transform: open ? "translateX(0)" : "translateX(100%)",
                 }}
             >
@@ -153,42 +139,35 @@ export default function EditModal({
                     sx={{
                         fontWeight: "bold",
                         fontSize: "1.5rem",
-                        marginBottom: 2,
+                        color: resolvedTheme === "dark" ? "#bb57de" : "#000",
                     }}
                 >
-                    Edit Task
+                    Add Task
                 </Typography>
 
                 <TextField
                     fullWidth
                     label="Title"
+                    placeholder="Enter task title"
                     value={title}
                     onChange={(e) => {
                         const input = e.target.value;
                         const capitalized =
                             input.charAt(0).toUpperCase() + input.slice(1);
                         setTitle(capitalized);
-                        setErrors((prev) => ({
-                            ...prev,
-                            title: !capitalized.trim()
-                                ? "Title is required"
-                                : capitalized.length > 40
-                                ? "Title cannot exceed 40 characters"
-                                : undefined,
-                        }));
+                        if (input.trim()) {
+                            setErrors((prev) => ({
+                                ...prev,
+                                title: undefined,
+                            }));
+                        }
                     }}
-                    margin="dense"
+                    margin="normal"
                     inputProps={{ maxLength: 40 }}
+                    required
+                    autoFocus
                     error={Boolean(errors.title)}
                     helperText={errors.title || `${title.length}/40 characters`}
-                    // slotProps={{
-                    //     formHelperText: {
-                    //         sx: {
-                    //             position: "absolute",
-                    //             right: "-0.4rem",
-                    //         },
-                    //     },
-                    // }}
                 />
 
                 <TextField
@@ -201,52 +180,43 @@ export default function EditModal({
                     rows={3}
                 />
 
-                <Box sx={{ display: "flex", gap: 1, flexWrap: "wrap", mt: 1 }}>
-                    {tags.map((tag) => (
-                        <Chip
-                            key={tag}
-                            label={`${tag}`}
-                            onDelete={() => handleRemoveTag(tag)}
-                            color="secondary"
-                            size="small"
-                        />
-                    ))}
-                </Box>
+                {/* Tags display */}
+                {tags.length > 0 && (
+                    <Box
+                        sx={{
+                            display: "flex",
+                            gap: 1,
+                            flexWrap: "wrap",
+                            mt: 2,
+                        }}
+                    >
+                        {tags.map((tag) => (
+                            <Chip
+                                key={tag}
+                                label={tag}
+                                onDelete={() => removeTag(tag)}
+                                color="primary"
+                                size="small"
+                            />
+                        ))}
+                    </Box>
+                )}
 
-                {/* <TextField
-                    fullWidth
-                    label="Add Tags (press Enter)"
-                    value={tagInput}
-                    onChange={(e) => {
-                        setTagInput(e.target.value);
-                        if (errors.tags) {
-                            setErrors((prev) => ({
-                                ...prev,
-                                tags: undefined,
-                            }));
-                        }
-                    }}
-                    onKeyDown={handleTagKeyDown}
-                    margin="dense"
-                    error={Boolean(errors.tags)}
-                    helperText={errors.tags}
-                /> */}
-
-                <Box sx={{ display: "flex", gap: 1, mt: 1 }}>
+                {/* Tag input with add button */}
+                <Box sx={{ display: "flex", gap: 1, mt: 2 }}>
                     <TextField
                         fullWidth
                         label="Add Tags (press Enter)"
                         inputProps={{ maxLength: 15 }}
-                        placeholder="max 15 characters/tag"
+                        placeholder="urgent, work (15 characters/tag)"
                         value={tagInput}
                         onChange={(e) => {
-                            setTagInput(e.target.value.toLowerCase());
-                            if (errors.tags) {
+                            onTagInputChange(e.target.value);
+                            if (errors.tags)
                                 setErrors((prev) => ({
                                     ...prev,
                                     tags: undefined,
                                 }));
-                            }
                         }}
                         onKeyDown={(e) => {
                             if (e.key === "Enter") {
@@ -254,9 +224,8 @@ export default function EditModal({
                                 handleAddTag();
                             }
                         }}
-                        margin="dense"
-                        error={Boolean(errors.tags)}
-                        helperText={errors.tags}
+                        error={Boolean(errors.tags || tagError)}
+                        helperText={errors.tags || tagError}
                     />
                     <Button
                         variant="outlined"
@@ -264,44 +233,61 @@ export default function EditModal({
                         disabled={!tagInput.trim()}
                         sx={{
                             height: "56px",
-                            mt: "8px", // aligns with TextField
+                            "&:not(:disabled)": {
+                                backgroundColor:
+                                    resolvedTheme === "dark"
+                                        ? "#bb57de"
+                                        : "#9c28b1",
+                                color: "#fff",
+                            },
                         }}
                     >
                         Add
                     </Button>
                 </Box>
 
+                {/* Suggested tags */}
                 {tagInput && (
                     <Box sx={{ mt: 1 }}>
                         {tagSuggestions
                             .filter(
-                                (suggestion) =>
-                                    suggestion
+                                (s) =>
+                                    s
                                         .toLowerCase()
                                         .includes(tagInput.toLowerCase()) &&
-                                    !tags.includes(suggestion)
+                                    !tags.includes(s)
                             )
                             .map((suggestion) => (
                                 <Chip
                                     key={suggestion}
-                                    label={`${suggestion}`}
+                                    label={suggestion}
                                     size="small"
-                                    sx={{ mr: 1, mb: 1, cursor: "pointer" }}
+                                    sx={{
+                                        mr: 1,
+                                        mb: 1,
+                                        cursor: "pointer",
+                                        backgroundColor: "info.main",
+                                        color: "white",
+                                        "&:hover": {
+                                            backgroundColor: "info.dark",
+                                        },
+                                    }}
                                     onClick={() => {
                                         setTags([...tags, suggestion]);
-                                        setTagInput("");
-                                        if (errors.tags) {
+                                        resetTagInput();
+                                        if (errors.tags)
                                             setErrors((prev) => ({
                                                 ...prev,
                                                 tags: undefined,
                                             }));
-                                        }
+                                        if (tagError) setTagError(undefined);
                                     }}
                                 />
                             ))}
                     </Box>
                 )}
 
+                {/* Priority Select */}
                 <FormControl fullWidth margin="normal">
                     <InputLabel id="priority-label">Priority Level</InputLabel>
                     <Select
@@ -320,21 +306,15 @@ export default function EditModal({
                     </Select>
                 </FormControl>
 
+                {/* Due Date Picker */}
                 <FormControl fullWidth margin="dense">
                     <LocalizationProvider dateAdapter={AdapterDayjs}>
                         <DateTimePicker
                             label="Due Date"
                             value={dueDate}
                             format="DD/MM/YYYY HH:mm"
-                            onChange={(newValue) => {
-                                setDueDate(newValue);
-                                if (newValue && newValue.isAfter(dayjs())) {
-                                    setErrors((prev) => ({
-                                        ...prev,
-                                        dueDate: undefined,
-                                    }));
-                                }
-                            }}
+                            disablePast
+                            onChange={(newValue) => setDueDate(newValue)}
                             minDateTime={dayjs()}
                             slotProps={{
                                 textField: {
@@ -347,12 +327,36 @@ export default function EditModal({
                     </LocalizationProvider>
                 </FormControl>
 
-                <Box mt={2} display="flex" justifyContent="flex-end" gap={1}>
-                    <Button onClick={onClose}>Cancel</Button>
+                {/* Actions */}
+                <Box mt={3} display="flex" justifyContent="flex-end" gap={1}>
+                    <Button
+                        onClick={onClose}
+                        sx={{
+                            color:
+                                resolvedTheme === "dark"
+                                    ? "#f1f1f1"
+                                    : "text.secondary",
+                        }}
+                    >
+                        Cancel
+                    </Button>
                     <Button
                         variant="contained"
                         color="secondary"
                         onClick={handleSave}
+                        sx={{
+                            backgroundColor:
+                                resolvedTheme === "dark"
+                                    ? "#bb57de"
+                                    : "#9c28b1",
+                            color: "#fff",
+                            "&:hover": {
+                                backgroundColor:
+                                    resolvedTheme === "dark"
+                                        ? "#a04ab8"
+                                        : "#7b1fa2",
+                            },
+                        }}
                     >
                         Save
                     </Button>
