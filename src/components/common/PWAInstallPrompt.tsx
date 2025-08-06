@@ -25,6 +25,7 @@ export default function PWAInstallPrompt() {
         const result = await promptInstall();
         setShowPrompt(false);
         if (!result.success) {
+            setShowPrompt(false);            
             toast.info("You can install later from the menu.");
         } else {
             toast.success("App installed successfully!");
@@ -40,8 +41,8 @@ export default function PWAInstallPrompt() {
 
     const handleMaybeLaterClick = () => {
         setShowPrompt(false);
-        toast.info("You can install later from the menu.");
-        toast.info("Install prompt dismissed.");
+        toast.info("You can install later from the menu. Install prompt dismissed.");
+        // toast.info("Install prompt dismissed.");
     };
 
     if (!showPrompt) return null;

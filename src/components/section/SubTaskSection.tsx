@@ -48,8 +48,6 @@ const SubTaskSection: React.FC<SubTaskSectionProps> = ({
     };
     const hasAnyOverdue = subtasks.some(hasOverdue);
 
-    console.log("hasAnyOverdue", hasAnyOverdue);
-
     return (
         <>
             <div className="mt-0.5 mb-1.5" onClick={(e) => e.stopPropagation()}>
