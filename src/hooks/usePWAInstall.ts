@@ -2,33 +2,25 @@
 import { useEffect, useState } from "react";
 import { toast } from "react-toastify";
 
-let hasManuallyTriggered = false; // Track if the user has manually triggered the install prompt
-
 export function usePWAInstall() {
     const [deferredPrompt, setDeferredPrompt] = useState<any>(null);
-    const [hasPromptFired, setHasPromptFired] = useState(false);
     const [isInstalled, setIsInstalled] = useState(false);
+    const [wasPromptUsed, setWasPromptUsed] = useState(false);
 
     useEffect(() => {
         const handler = (e: any) => {
-            e.preventDefault();
-
-            // Check if the prompt has already been manually triggered
-            if (!hasManuallyTriggered) {
+            if (!wasPromptUsed) {
                 setDeferredPrompt(e);
-                setHasPromptFired(true);
             }
         };
 
         window.addEventListener("beforeinstallprompt", handler);
         return () => window.removeEventListener("beforeinstallprompt", handler);
-    }, []);
+    }, [wasPromptUsed]);
 
     useEffect(() => {
         const handleAppInstalled = () => {
-            console.log("PWA installed");
             setIsInstalled(true);
-            // Clear the prompt
             setDeferredPrompt(null);
         };
 
@@ -38,20 +30,25 @@ export function usePWAInstall() {
     }, []);
 
     const promptInstall = async () => {
-        if (!deferredPrompt) return { success: false };
+        if (!deferredPrompt) {
+            toast.info("Install prompt not available. Please reload the page.");
+            return { success: false };
+        }
 
-        hasManuallyTriggered = true;
         deferredPrompt.prompt();
 
         const result = await deferredPrompt.userChoice;
 
-        // Reset the prompt state
+        // You cannot reuse the prompt again — clear it
         setDeferredPrompt(null);
-        setHasPromptFired(false);
-
-        if (!result.success) {
-            toast.info("You can install later from the menu.");
-            toast.info("Install prompt dismissed.");
+        setWasPromptUsed(true); // Prevent future prompts until new event fires
+        
+        if (result.outcome === "dismissed") {
+            toast.info(
+                "Install prompt dismissed. You can install later from the menu."
+            );
+        } else {
+            toast.success("App installed successfully!");
         }
 
         return {
@@ -61,7 +58,7 @@ export function usePWAInstall() {
     };
 
     return {
-        isSupported: !isInstalled && (hasPromptFired || !!deferredPrompt),
+        isSupported: !isInstalled && !!deferredPrompt && !wasPromptUsed,
         promptInstall,
         deferredPrompt,
         isInstalled,

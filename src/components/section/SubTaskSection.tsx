@@ -1,3 +1,5 @@
+/* eslint-disable @typescript-eslint/no-unused-vars */
+
 "use client";
 import React from "react";
 import { Checkbox, IconButton, Tooltip, Typography } from "@mui/material";
@@ -47,8 +49,6 @@ const SubTaskSection: React.FC<SubTaskSectionProps> = ({
         return dueDate < new Date() && !sub.completed;
     };
     const hasAnyOverdue = subtasks.some(hasOverdue);
-
-    console.log("hasAnyOverdue", hasAnyOverdue);
 
     return (
         <>

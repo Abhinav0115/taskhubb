@@ -22,7 +22,7 @@ const Navbar = () => {
     if (!mounted) return null;
     return (
         <nav
-            className={`bg-purple-900 p-4 py-2  ${
+            className={`bg-purple-900 p-3 pl-1.5 md:pl-3 py-2  ${
                 theme === "dark"
                     ? "shadow-xs shadow-gray-300"
                     : "shadow-sm  shadow-gray-700"
@@ -44,7 +44,7 @@ const Navbar = () => {
                 </div>
 
                 <div
-                    className="text-white text-3xl font-bold"
+                    className="text-white text-3xl ml-0 sm:ml-5 lg:ml-36 font-bold"
                     aria-label="Task Hubb"
                     aria-details="Task Hubb - A task management application"
                     aria-description="Task Hubb helps you manage your tasks efficiently."
@@ -56,6 +56,7 @@ const Navbar = () => {
                     {/* PWA Install Button */}
                     {isSupported && (
                         <button
+                            disabled={!isSupported}
                             onClick={handleInstallClick}
                             className="p-1 px-3 outline-1 outline-gray-200 text-gray-200 hover:outline-gray-300 rounded-md transition-colors duration-300 hover:bg-white/10 cursor-pointer"
                         >

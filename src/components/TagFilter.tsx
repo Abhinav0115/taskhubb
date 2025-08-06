@@ -3,7 +3,7 @@
 import { useEffect, useRef, useState } from "react";
 import { FaChevronDown, FaChevronUp, FaTimesCircle } from "react-icons/fa";
 import { useTheme } from "next-themes";
-interface Props {
+interface TagFilterProps {
     tags: string[];
     selected: string[];
     onSelect: (tags: string[]) => void;
@@ -19,7 +19,7 @@ export default function TagFilter({
     status,
     onStatusChange,
     availableStatusFilters,
-}: Props) {
+}: TagFilterProps) {
     const [isFilterOpen, setIsFilterOpen] = useState(false);
     const dropdownRef = useRef<HTMLDivElement>(null);
     const buttonRef = useRef<HTMLButtonElement>(null);
