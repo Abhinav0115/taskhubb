@@ -11,8 +11,7 @@ import {
 } from "@/utils/taskUtils";
 import { SubTask } from "@/types/task";
 import SubTaskBox from "@/components/box/SubTaskBox";
-
-//TODO: fix subtask overdue issue
+import dayjs from "dayjs";
 
 interface SubTaskSectionProps {
     taskId: string;
@@ -29,6 +28,7 @@ interface SubTaskSectionProps {
         subtaskId: string;
     }) => void;
     theme: string;
+    taskDueDate?: string | null; 
 }
 
 const SubTaskSection: React.FC<SubTaskSectionProps> = ({
@@ -39,6 +39,7 @@ const SubTaskSection: React.FC<SubTaskSectionProps> = ({
     onAddSubTask,
     setSubtaskToDelete,
     theme,
+    taskDueDate,
 }) => {
     const totalSubtasks = subtasks.length;
     const completedSubtasks = subtasks.filter((sub) => sub.completed).length;
@@ -64,6 +65,7 @@ const SubTaskSection: React.FC<SubTaskSectionProps> = ({
                                     dueDate?.toISOString() || null
                                 );
                             }}
+                            maxDueDate={taskDueDate ? dayjs(taskDueDate) : null}
                         />
                     ) : (
                         <div className="text-sm text-red-500 text-center border-2 border-red-200 py-0.5 mt-2 rounded bg-red-50">
