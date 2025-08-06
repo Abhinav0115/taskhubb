@@ -275,7 +275,9 @@ const TaskItem = React.memo(function TaskItem({
                                 setSubtasksExpanded((prev) => !prev);
                             }}
                         >
-                            <h1 className="text-center px-[1.5px] text-sm">Sub-Tasks</h1>
+                            <h1 className="text-center px-[1.5px] text-sm">
+                                Sub-Tasks
+                            </h1>
                             <span className="text-sm">
                                 {subtasksExpanded ? "▲" : "▼"}
                             </span>
@@ -289,6 +291,7 @@ const TaskItem = React.memo(function TaskItem({
                                 onAddSubTask={onAddSubTask}
                                 setSubtaskToDelete={setSubtaskToDelete}
                                 theme={theme ?? "light"}
+                                taskDueDate={task.dueDate}
                             />
                         )}
                     </div>

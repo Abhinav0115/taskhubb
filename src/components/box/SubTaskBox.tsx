@@ -9,8 +9,10 @@ import { useTheme } from "@mui/material/styles";
 
 export default function SubTaskBox({
     onAdd,
+    maxDueDate,
 }: {
-    onAdd: (title: string, dueDate: Dayjs | null) => void;
+        onAdd: (title: string, dueDate: Dayjs | null) => void;
+        maxDueDate?: Dayjs | null;
 }) {
     const [title, setTitle] = useState("");
     const [dueDate, setDueDate] = useState<Dayjs | null>(null);
@@ -70,6 +72,7 @@ export default function SubTaskBox({
                     onChange={(date) => setDueDate(date)}
                     minDateTime={dayjs()}
                     format="DD/MM/YYYY HH:mm"
+                    maxDateTime={maxDueDate || dayjs().add(1, "year")}
                     slotProps={{
                         textField: {
                             fullWidth: true,
