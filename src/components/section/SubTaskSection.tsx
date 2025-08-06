@@ -1,3 +1,5 @@
+/* eslint-disable @typescript-eslint/no-unused-vars */
+
 "use client";
 import React from "react";
 import { Checkbox, IconButton, Tooltip, Typography } from "@mui/material";
